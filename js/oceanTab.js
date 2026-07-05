@@ -16,14 +16,17 @@ window.OceanTab = (function () {
     { feet: 50, label: 'Sprinten' },
   ];
 
-  let slider, speedValueEl, feetValueEl, analogyEl, needleEl, gaugeFillEl, gaugeFillArc = 377;
+  let slider, speedValueEl, feetValueEl, analogyEl, needleEl, gaugeFillEl, gaugeFillArc = 245.0;
 
   // ---- Sound engine ----------------------------------------------------
   let ctx = null;
   let running = false;
-  let masterGain, levelGain, ampGain, filter, waveshaper, lfoOsc, lfoGain, constSource, noiseSource;
+  let masterGain, levelGain, ampGain, filter, waveshaper, lfoOsc, lfoGain, lfoOsc2, lfoGain2, constSource, noiseSource;
+  let rainSource, rainFilterHP, rainFilterLP, rainGain, rainFlutterOsc, rainFlutterGain;
   let whaleTimer = null;
-  let burstTimer = null;
+  let whipTimer = null;
+  let breakingTimer = null;
+  let thunderTimer = null;
   let currentFeet = 0;
   let lastDrive = -1;
 
@@ -83,13 +86,56 @@ window.OceanTab = (function () {
     lfoOsc.connect(lfoGain);
     lfoGain.connect(ampGain.gain);
 
+    // zweiter, unrunder LFO sorgt für unregelmäßige (nicht-metronomische)
+    // Verwirbelung statt eines gleichmäßigen Wellentakts.
+    lfoOsc2 = c.createOscillator();
+    lfoOsc2.type = 'sine';
+    lfoOsc2.frequency.value = 0.37;
+    lfoGain2 = c.createGain();
+    lfoGain2.gain.value = 0;
+    lfoOsc2.connect(lfoGain2);
+    lfoGain2.connect(ampGain.gain);
+
     constSource = c.createConstantSource();
     constSource.offset.value = 0.55;
     constSource.connect(ampGain.gain);
 
+    // Regen: kontinuierliches, helles Rauschband, das erst ab hoher
+    // Geschwindigkeit eingeblendet wird (siehe setIntensity).
+    rainSource = c.createBufferSource();
+    rainSource.buffer = NoiseSynth.createNoiseBuffer(c, 4, 'white');
+    rainSource.loop = true;
+
+    rainFilterHP = c.createBiquadFilter();
+    rainFilterHP.type = 'highpass';
+    rainFilterHP.frequency.value = 2200;
+
+    rainFilterLP = c.createBiquadFilter();
+    rainFilterLP.type = 'lowpass';
+    rainFilterLP.frequency.value = 9000;
+
+    rainGain = c.createGain();
+    rainGain.gain.value = 0;
+
+    rainFlutterOsc = c.createOscillator();
+    rainFlutterOsc.type = 'sine';
+    rainFlutterOsc.frequency.value = 5;
+    rainFlutterGain = c.createGain();
+    rainFlutterGain.gain.value = 0;
+    rainFlutterOsc.connect(rainFlutterGain);
+    rainFlutterGain.connect(rainGain.gain);
+
+    rainSource.connect(rainFilterHP);
+    rainFilterHP.connect(rainFilterLP);
+    rainFilterLP.connect(rainGain);
+    rainGain.connect(masterGain);
+
     noiseSource.start();
     lfoOsc.start();
+    lfoOsc2.start();
     constSource.start();
+    rainSource.start();
+    rainFlutterOsc.start();
   }
 
   function playWhaleCall() {
@@ -118,7 +164,11 @@ window.OceanTab = (function () {
     }, delay);
   }
 
-  function playCrashBurst(intensity) {
+  // "Peitschen": kurzer, schmalbandiger Rausch-Klick (Wind/Gischt-Knacken).
+  // Exakt die ursprüngliche Klangfarbe (feste Frequenz/Q/Dauer) - nur das
+  // Timing zwischen den Treffern ist unregelmäßig (siehe scheduleWhipCracks),
+  // der Klang selbst bleibt unverändert von Treffer zu Treffer.
+  function playWhipCrack(intensity) {
     const c = ctx;
     const src = c.createBufferSource();
     src.buffer = NoiseSynth.createNoiseBuffer(c, 0.4, 'white');
@@ -139,18 +189,155 @@ window.OceanTab = (function () {
     src.stop(now + 0.4);
   }
 
-  function scheduleBursts() {
+  function scheduleWhipCracks() {
     if (!running) return;
     if (currentFeet >= 25) {
       const t = currentFeet / MAX_FEET;
       const gapBase = 1800 - t * 1300;
-      const gap = gapBase + Math.random() * gapBase * 0.6;
-      burstTimer = setTimeout(() => {
-        playCrashBurst(t);
-        scheduleBursts();
+      // deutlich breiterer Zufallsbereich (0.3x - 2x) statt gleichmäßigem Takt
+      const gap = gapBase * (0.3 + Math.random() * 1.7);
+      whipTimer = setTimeout(() => {
+        playWhipCrack(t);
+        scheduleWhipCracks();
       }, gap);
     } else {
-      burstTimer = setTimeout(scheduleBursts, 1500);
+      whipTimer = setTimeout(scheduleWhipCracks, 1500);
+    }
+  }
+
+  // "Brechende Welle": voller, breitbandiger Crash, der von einem hellen
+  // Aufprall in ein dumpfes Grollen absackt (Crash -> Schaum/Rückzug).
+  // Selten bei niedrigem Tempo (ab 10ft/6s), häufig bei hohem Tempo (50ft/6s).
+  function playBreakingWave(intensity) {
+    const c = ctx;
+    const now = c.currentTime;
+    const dur = 1.1 + intensity * 1.3 + Math.random() * 0.4;
+
+    const src = c.createBufferSource();
+    src.buffer = NoiseSynth.createNoiseBuffer(c, dur + 0.2, 'white');
+
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.value = 0.3;
+    const startFreq = 2200 + intensity * 2200;
+    const endFreq = 220 + intensity * 200;
+    lp.frequency.setValueAtTime(startFreq, now);
+    lp.frequency.exponentialRampToValueAtTime(endFreq, now + dur * 0.85);
+
+    const hp = c.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 90;
+
+    const wobble = c.createOscillator();
+    wobble.type = 'sine';
+    wobble.frequency.value = 5 + Math.random() * 6;
+    const wobbleGain = c.createGain();
+    wobbleGain.gain.value = 0.15;
+
+    const g = c.createGain();
+    const peak = 0.2 + intensity * 0.6;
+    const attack = 0.05 + Math.random() * 0.05;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(peak, now + attack);
+    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+    wobble.connect(wobbleGain);
+    wobbleGain.connect(g.gain);
+
+    src.connect(hp);
+    hp.connect(lp);
+    lp.connect(g);
+    g.connect(masterGain);
+
+    src.start(now);
+    src.stop(now + dur + 0.2);
+    wobble.start(now);
+    wobble.stop(now + dur + 0.2);
+  }
+
+  function scheduleBreakingWaves() {
+    if (!running) return;
+    if (currentFeet >= 10) {
+      const t = currentFeet / MAX_FEET;
+      const gapBase = 6500 - t * 5300; // 10ft: ~selten (~6.5s), 50ft: ~häufig (~1.2s)
+      const gap = gapBase + Math.random() * gapBase * 0.6;
+      breakingTimer = setTimeout(() => {
+        playBreakingWave(t);
+        scheduleBreakingWaves();
+      }, gap);
+    } else {
+      breakingTimer = setTimeout(scheduleBreakingWaves, 2000);
+    }
+  }
+
+  // Gewitter: tiefes Rollen, bei starkem Sturm (50ft/6s) zusätzlich mit
+  // hellem Blitz-Krachen und zweitem, verzögertem Rollen.
+  function playThunder(strong) {
+    const c = ctx;
+    const now = c.currentTime;
+    const rumbleDur = strong ? 4.5 : 2.8;
+
+    const rumbleSrc = c.createBufferSource();
+    rumbleSrc.buffer = NoiseSynth.createNoiseBuffer(c, rumbleDur + 0.3, 'brown');
+    const rumbleFilter = c.createBiquadFilter();
+    rumbleFilter.type = 'lowpass';
+    rumbleFilter.frequency.value = strong ? 220 : 140;
+    const rumbleGain = c.createGain();
+    const rumblePeak = strong ? 0.6 : 0.26;
+    rumbleGain.gain.setValueAtTime(0.0001, now);
+    rumbleGain.gain.linearRampToValueAtTime(rumblePeak, now + (strong ? 0.25 : 0.4));
+    rumbleGain.gain.exponentialRampToValueAtTime(0.001, now + rumbleDur);
+    rumbleSrc.connect(rumbleFilter);
+    rumbleFilter.connect(rumbleGain);
+    rumbleGain.connect(masterGain);
+    rumbleSrc.start(now);
+    rumbleSrc.stop(now + rumbleDur + 0.3);
+
+    if (!strong) return;
+
+    const crackSrc = c.createBufferSource();
+    crackSrc.buffer = NoiseSynth.createNoiseBuffer(c, 0.25, 'white');
+    const crackFilter = c.createBiquadFilter();
+    crackFilter.type = 'highpass';
+    crackFilter.frequency.value = 1500;
+    const crackGain = c.createGain();
+    crackGain.gain.setValueAtTime(0.0001, now);
+    crackGain.gain.linearRampToValueAtTime(0.5, now + 0.008);
+    crackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    crackSrc.connect(crackFilter);
+    crackFilter.connect(crackGain);
+    crackGain.connect(masterGain);
+    crackSrc.start(now);
+    crackSrc.stop(now + 0.3);
+
+    const rumble2Src = c.createBufferSource();
+    rumble2Src.buffer = NoiseSynth.createNoiseBuffer(c, 3.2, 'brown');
+    const rumble2Filter = c.createBiquadFilter();
+    rumble2Filter.type = 'lowpass';
+    rumble2Filter.frequency.value = 180;
+    const rumble2Gain = c.createGain();
+    const startAt = now + 0.6 + Math.random() * 0.4;
+    rumble2Gain.gain.setValueAtTime(0.0001, startAt);
+    rumble2Gain.gain.linearRampToValueAtTime(0.35, startAt + 0.3);
+    rumble2Gain.gain.exponentialRampToValueAtTime(0.001, startAt + 3);
+    rumble2Src.connect(rumble2Filter);
+    rumble2Filter.connect(rumble2Gain);
+    rumble2Gain.connect(masterGain);
+    rumble2Src.start(startAt);
+    rumble2Src.stop(startAt + 3.2);
+  }
+
+  function scheduleThunder() {
+    if (!running) return;
+    if (currentFeet >= 40) {
+      const strong = currentFeet >= 50;
+      const gap = strong ? 6000 + Math.random() * 8000 : 12000 + Math.random() * 14000;
+      thunderTimer = setTimeout(() => {
+        playThunder(strong);
+        scheduleThunder();
+      }, gap);
+    } else {
+      thunderTimer = setTimeout(scheduleThunder, 3000);
     }
   }
 
@@ -162,12 +349,19 @@ window.OceanTab = (function () {
     filter.frequency.setTargetAtTime(450 + t * 3200, now, 0.4);
     lfoOsc.frequency.setTargetAtTime(0.1 + t * 0.55, now, 0.4);
     lfoGain.gain.setTargetAtTime(0.15 + t * 0.35, now, 0.4);
+    lfoOsc2.frequency.setTargetAtTime(0.3 + t * 1.1, now, 0.4);
+    lfoGain2.gain.setTargetAtTime(t * 0.3, now, 0.4);
     levelGain.gain.setTargetAtTime(0.12 + t * 0.55, now, 0.4);
     const drive = Math.round(t * t * 25);
     if (drive !== lastDrive) {
       lastDrive = drive;
       waveshaper.curve = makeDistortionCurve(drive);
     }
+
+    // Regen blendet erst ab ~40ft/6s ein, bei 50ft/6s voller Regen
+    const rainLevel = Math.max(0, (t - 0.75) / 0.25);
+    rainGain.gain.setTargetAtTime(rainLevel * 0.35, now, 0.6);
+    rainFlutterGain.gain.setTargetAtTime(rainLevel * 0.08, now, 0.6);
   }
 
   function startSound() {
@@ -177,7 +371,9 @@ window.OceanTab = (function () {
     running = true;
     masterGain.gain.setTargetAtTime(1, ctx.currentTime, 0.5);
     scheduleWhale();
-    scheduleBursts();
+    scheduleWhipCracks();
+    scheduleBreakingWaves();
+    scheduleThunder();
     setIntensity(currentFeet);
   }
 
@@ -185,7 +381,9 @@ window.OceanTab = (function () {
     if (!running) return;
     running = false;
     clearTimeout(whaleTimer);
-    clearTimeout(burstTimer);
+    clearTimeout(whipTimer);
+    clearTimeout(breakingTimer);
+    clearTimeout(thunderTimer);
     if (ctx && masterGain) masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
   }
 
@@ -216,7 +414,7 @@ window.OceanTab = (function () {
     const g = document.getElementById('gaugeTicks');
     if (!g) return;
     g.innerHTML = '';
-    const cx = 150, cy = 160, rOuter = 122, rInner = 104;
+    const cx = 160, cy = 205, rOuter = 84, rInner = 68;
     for (let i = 0; i <= 10; i++) {
       const theta = Math.PI - (i / 10) * Math.PI; // 180deg -> 0deg
       const x1 = cx + rInner * Math.cos(theta);

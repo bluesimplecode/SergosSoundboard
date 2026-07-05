@@ -21,8 +21,8 @@
       <span class="tab-label">Meeres-Tacho</span>
     </button>
     <button class="tab-btn" data-tab="angel">
-      <span class="tab-icon">✨</span>
-      <span class="tab-label">Engelsstimmen</span>
+      <span class="tab-icon">👼</span>
+      <span class="tab-label">Talking Doll</span>
     </button>
   </nav>
 
@@ -42,39 +42,42 @@
         <h1 class="ocean-title">Meeres-Tacho</h1>
 
         <div class="shell-gauge-wrap">
-          <svg class="shell-frame" viewBox="0 0 320 220" aria-hidden="true">
+          <svg class="shell-gauge" viewBox="0 0 320 240">
             <defs>
-              <radialGradient id="shellGrad" cx="50%" cy="30%" r="80%">
+              <radialGradient id="shellGrad" cx="50%" cy="22%" r="85%">
                 <stop offset="0%" stop-color="#fdf6ff" />
                 <stop offset="45%" stop-color="#f3d9e8" />
                 <stop offset="75%" stop-color="#d9b8dd" />
                 <stop offset="100%" stop-color="#a888c2" />
               </radialGradient>
               <linearGradient id="shellRidge" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
-                <stop offset="100%" stop-color="#c9a3d6" stop-opacity="0.4" />
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#8a5fa0" stop-opacity="0.55" />
               </linearGradient>
             </defs>
-            <!-- untere Muschelschale -->
-            <path d="M20,190 Q10,90 160,40 Q310,90 300,190 Q160,230 20,190 Z" fill="url(#shellGrad)" stroke="#8a5fa0" stroke-width="2"/>
-            <!-- Rillen der Muschel -->
-            <g stroke="url(#shellRidge)" stroke-width="3" fill="none">
-              <path d="M160,42 L160,195" />
-              <path d="M130,46 Q100,110 65,182" />
-              <path d="M100,58 Q75,115 45,175" />
-              <path d="M190,46 Q220,110 255,182" />
-              <path d="M220,58 Q245,115 275,175" />
-            </g>
-            <!-- obere Schale, leicht geöffnet -->
-            <path d="M25,95 Q160,10 295,95 Q160,55 25,95 Z" fill="url(#shellGrad)" stroke="#8a5fa0" stroke-width="2" opacity="0.95"/>
-          </svg>
 
-          <svg class="gauge" viewBox="0 0 300 180">
-            <path class="gauge-track" d="M30,160 A120,120 0 0 1 270,160" />
-            <path class="gauge-fill" id="gaugeFill" d="M30,160 A120,120 0 0 1 270,160" />
+            <!-- offene Herzmuschel: zwei gerundete Lappen, unten am Scharnier zusammenlaufend -->
+            <path class="shell-front" d="M160,205 C238,193 300,158 296,100 C292,48 240,28 160,66 C80,28 28,48 24,100 C20,158 82,193 160,205 Z" fill="url(#shellGrad)" stroke="#8a5fa0" stroke-width="2.5"/>
+
+            <!-- Rillen (strahlenförmig vom Scharnier zum Rand, wie bei einer Herzmuschel) -->
+            <g class="shell-ribs" stroke="url(#shellRidge)" stroke-width="2.5" fill="none">
+              <line x1="160" y1="205" x2="160" y2="66" />
+              <line x1="160" y1="205" x2="205" y2="150" />
+              <line x1="160" y1="205" x2="252" y2="128" />
+              <line x1="160" y1="205" x2="283" y2="88" />
+              <line x1="160" y1="205" x2="252" y2="45" />
+              <line x1="160" y1="205" x2="115" y2="150" />
+              <line x1="160" y1="205" x2="68" y2="128" />
+              <line x1="160" y1="205" x2="37" y2="88" />
+              <line x1="160" y1="205" x2="68" y2="45" />
+            </g>
+
+            <!-- Tacho: Mittelpunkt = Scharnier der Herzmuschel (160,205) -->
+            <path class="gauge-track" d="M82,205 A78,78 0 0 1 238,205" />
+            <path class="gauge-fill" id="gaugeFill" d="M82,205 A78,78 0 0 1 238,205" />
             <g id="gaugeTicks"></g>
-            <line id="needle" class="needle" x1="150" y1="160" x2="150" y2="55" />
-            <circle cx="150" cy="160" r="9" class="needle-hub" />
+            <line id="needle" class="needle" x1="160" y1="205" x2="160" y2="137" />
+            <circle cx="160" cy="205" r="8" class="needle-hub" />
           </svg>
 
           <div class="speed-readout">
@@ -105,8 +108,13 @@
       </div>
 
       <div class="angel-content">
-        <h1 class="angel-title">Engelsstimmen</h1>
-        <p class="angel-subtitle">Nimm deine Stimme auf &mdash; sie wird in eine Engelsstimme verwandelt</p>
+        <svg class="angel-hero-icon" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" aria-label="Engel">
+          <ellipse cx="30" cy="13" rx="13" ry="4" fill="none" stroke="#e0ac3f" stroke-width="2.2"/>
+          <path d="M12,40 C3,36 1,49 7,54 C11,50 13,44 13,39 Z" fill="#f0d9ff" stroke="#d9b8ec" stroke-width="1"/>
+          <path d="M48,40 C57,36 59,49 53,54 C49,50 47,44 47,39 Z" fill="#f0d9ff" stroke="#d9b8ec" stroke-width="1"/>
+          <path d="M30,31 C19,35 15,48 15,56 L45,56 C45,48 41,35 30,31 Z" fill="#ffffff" stroke="#e6d4f0" stroke-width="1"/>
+          <circle cx="30" cy="23" r="9.5" fill="#ffe4c4"/>
+        </svg>
 
         <div id="angelGrid" class="angel-grid"></div>
       </div>

@@ -1,5 +1,5 @@
 // Kleiner IndexedDB-Wrapper: speichert die 6 verarbeiteten Engelsstimmen-Slots
-// rein lokal im Browser des Geräts (keine Server-Kommunikation).
+// (Audio + Name) rein lokal im Browser des Geräts (keine Server-Kommunikation).
 window.SlotStorage = (function () {
   const DB_NAME = 'sergo-soundbot';
   const STORE = 'angel-slots';
@@ -22,24 +22,65 @@ window.SlotStorage = (function () {
     return dbPromise;
   }
 
-  async function saveSlot(id, blob) {
+  async function getRecord(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).get(id);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function putRecord(record) {
     const db = await openDB();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE, 'readwrite');
-      tx.objectStore(STORE).put({ id, blob, savedAt: Date.now() });
+      tx.objectStore(STORE).put(record);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
   }
 
-  async function loadSlot(id) {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, 'readonly');
-      const req = tx.objectStore(STORE).get(id);
-      req.onsuccess = () => resolve(req.result ? req.result.blob : null);
-      req.onerror = () => reject(req.error);
+  // Speichert/ersetzt die Audiodatei eines Slots, ohne Name/Emoji zu verlieren.
+  async function saveSlot(id, blob) {
+    const existing = await getRecord(id);
+    await putRecord({
+      id,
+      blob,
+      name: existing ? existing.name : null,
+      emoji: existing ? existing.emoji : null,
+      savedAt: Date.now(),
     });
+  }
+
+  // Speichert/ändert nur den Namen eines Slots, ohne die Audiodatei anzufassen.
+  async function saveSlotName(id, name) {
+    const existing = await getRecord(id);
+    await putRecord({
+      id,
+      blob: existing ? existing.blob : null,
+      name,
+      emoji: existing ? existing.emoji : null,
+      savedAt: existing ? existing.savedAt : Date.now(),
+    });
+  }
+
+  // Speichert/ändert nur das Emoji-Icon eines Slots, ohne die Audiodatei anzufassen.
+  async function saveSlotEmoji(id, emoji) {
+    const existing = await getRecord(id);
+    await putRecord({
+      id,
+      blob: existing ? existing.blob : null,
+      name: existing ? existing.name : null,
+      emoji,
+      savedAt: existing ? existing.savedAt : Date.now(),
+    });
+  }
+
+  // Gibt { id, blob, name, emoji, savedAt } oder null zurück.
+  async function loadSlot(id) {
+    return getRecord(id);
   }
 
   async function deleteSlot(id) {
@@ -52,13 +93,5 @@ window.SlotStorage = (function () {
     });
   }
 
-  async function loadAll(ids) {
-    const result = {};
-    for (const id of ids) {
-      result[id] = await loadSlot(id);
-    }
-    return result;
-  }
-
-  return { saveSlot, loadSlot, deleteSlot, loadAll };
+  return { saveSlot, saveSlotName, saveSlotEmoji, loadSlot, deleteSlot };
 })();

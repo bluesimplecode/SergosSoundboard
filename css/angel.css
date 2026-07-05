@@ -36,20 +36,11 @@
   gap: 4px;
 }
 
-.angel-title {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  color: #a4783f;
-  text-shadow: 0 1px 0 #fff;
-}
-
-.angel-subtitle {
-  margin: 0 0 20px;
-  font-size: 13px;
-  text-align: center;
-  opacity: 0.75;
-  max-width: 280px;
+.angel-hero-icon {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 4px 10px rgba(160, 120, 60, 0.25));
 }
 
 .angel-grid {
@@ -83,7 +74,7 @@
   50% { box-shadow: 0 0 18px rgba(255, 100, 100, 0.55); }
 }
 
-.angel-slot.playing .angel-icon {
+.angel-slot.playing .angel-icon-emoji {
   animation: gentlePulse 1.2s ease-in-out infinite;
 }
 
@@ -92,15 +83,57 @@
   50% { transform: scale(1.08); }
 }
 
-.angel-icon {
-  width: 54px;
-  height: 54px;
+.angel-icon-emoji {
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(138, 106, 69, 0.4);
+  border-radius: 12px;
+  padding: 2px 6px;
+}
+
+.angel-icon-input {
+  display: none;
+  width: 56px;
+  font-size: 26px;
+  font-family: inherit;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #d9b06a;
+  border-radius: 8px;
+  padding: 2px 4px;
 }
 
 .angel-slot-name {
   font-size: 12px;
   font-weight: 600;
   color: #8a6a45;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(138, 106, 69, 0.4);
+  padding: 0 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.angel-slot-name-input {
+  display: none;
+  width: 90%;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #8a6a45;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #d9b06a;
+  border-radius: 6px;
+  padding: 2px 4px;
 }
 
 .angel-slot-status {

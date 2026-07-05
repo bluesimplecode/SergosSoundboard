@@ -3,22 +3,17 @@ window.AngelTab = (function () {
   let slots = {};
   let gridEl;
 
-  const ANGEL_ICON_SVG = `
-    <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="30" cy="13" rx="13" ry="4" fill="none" stroke="#e0ac3f" stroke-width="2.2"/>
-      <path d="M12,40 C3,36 1,49 7,54 C11,50 13,44 13,39 Z" fill="#f0d9ff" stroke="#d9b8ec" stroke-width="1"/>
-      <path d="M48,40 C57,36 59,49 53,54 C49,50 47,44 47,39 Z" fill="#f0d9ff" stroke="#d9b8ec" stroke-width="1"/>
-      <path d="M30,31 C19,35 15,48 15,56 L45,56 C45,48 41,35 30,31 Z" fill="#ffffff" stroke="#e6d4f0" stroke-width="1"/>
-      <circle cx="30" cy="23" r="9.5" fill="#ffe4c4"/>
-    </svg>`;
+  const DEFAULT_EMOJI = '';
 
   function createSlotEl(id) {
     const el = document.createElement('div');
     el.className = 'angel-slot';
     el.dataset.id = String(id);
     el.innerHTML = `
-      <div class="angel-icon">${ANGEL_ICON_SVG}</div>
-      <div class="angel-slot-name">Engel ${id}</div>
+      <div class="angel-icon-emoji" data-role="emoji" tabindex="0" title="Tippen zum Ändern">${DEFAULT_EMOJI}</div>
+      <input type="text" class="angel-icon-input" data-role="emoji-input" maxlength="4" />
+      <div class="angel-slot-name" data-role="name" tabindex="0" title="Tippen zum Umbenennen">leer</div>
+      <input type="text" class="angel-slot-name-input" data-role="name-input" maxlength="24" />
       <div class="angel-slot-status" data-role="status">Leer</div>
       <div class="angel-slot-actions">
         <button type="button" class="angel-btn record" data-role="record">&#9679; Aufnehmen</button>
@@ -26,6 +21,68 @@ window.AngelTab = (function () {
       </div>
     `;
     return el;
+  }
+
+  function setupEmojiEditing(id, slotEl) {
+    const emojiDisplay = slotEl.querySelector('[data-role="emoji"]');
+    const emojiInput = slotEl.querySelector('[data-role="emoji-input"]');
+
+    function enterEdit() {
+      emojiInput.value = slots[id].emoji;
+      emojiDisplay.style.display = 'none';
+      emojiInput.style.display = 'block';
+      emojiInput.focus();
+      emojiInput.select();
+    }
+
+    function commitEdit() {
+      const finalEmoji = emojiInput.value.trim() || DEFAULT_EMOJI;
+      slots[id].emoji = finalEmoji;
+      emojiDisplay.textContent = finalEmoji;
+      emojiDisplay.style.display = '';
+      emojiInput.style.display = 'none';
+      SlotStorage.saveSlotEmoji(id, finalEmoji).catch(() => {});
+    }
+
+    emojiDisplay.addEventListener('click', enterEdit);
+    emojiInput.addEventListener('blur', commitEdit);
+    emojiInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        emojiInput.blur();
+      }
+    });
+  }
+
+  function setupNameEditing(id, slotEl) {
+    const nameDisplay = slotEl.querySelector('[data-role="name"]');
+    const nameInput = slotEl.querySelector('[data-role="name-input"]');
+
+    function enterEdit() {
+      nameInput.value = slots[id].name === 'leer' ? '' : slots[id].name;
+      nameDisplay.style.display = 'none';
+      nameInput.style.display = 'block';
+      nameInput.focus();
+      nameInput.select();
+    }
+
+    function commitEdit() {
+      const finalName = nameInput.value.trim() || 'leer';
+      slots[id].name = finalName;
+      nameDisplay.textContent = finalName;
+      nameDisplay.style.display = '';
+      nameInput.style.display = 'none';
+      SlotStorage.saveSlotName(id, finalName).catch(() => {});
+    }
+
+    nameDisplay.addEventListener('click', enterEdit);
+    nameInput.addEventListener('blur', commitEdit);
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        nameInput.blur();
+      }
+    });
   }
 
   function setStatus(id, text) {
@@ -101,9 +158,9 @@ window.AngelTab = (function () {
 
     let buffer = slot.cachedBuffer;
     if (!buffer) {
-      const blob = await SlotStorage.loadSlot(id);
-      if (!blob) return;
-      buffer = await AngelAudio.blobToAudioBuffer(blob);
+      const record = await SlotStorage.loadSlot(id);
+      if (!record || !record.blob) return;
+      buffer = await AngelAudio.blobToAudioBuffer(record.blob);
       slot.cachedBuffer = buffer;
     }
 
@@ -115,19 +172,32 @@ window.AngelTab = (function () {
     gridEl = document.getElementById('angelGrid');
 
     SLOT_IDS.forEach((id) => {
-      slots[id] = { state: 'idle', cachedBuffer: null, hasData: false, recorder: null };
+      slots[id] = { state: 'idle', cachedBuffer: null, hasData: false, recorder: null, name: 'leer', emoji: DEFAULT_EMOJI };
       const el = createSlotEl(id);
       gridEl.appendChild(el);
       el.querySelector('[data-role="record"]').addEventListener('click', () => onRecordClick(id));
       el.querySelector('[data-role="play"]').addEventListener('click', () => onPlayClick(id));
+      setupNameEditing(id, el);
+      setupEmojiEditing(id, el);
     });
 
     for (const id of SLOT_IDS) {
       try {
-        const blob = await SlotStorage.loadSlot(id);
-        if (blob) {
-          slots[id].hasData = true;
-          setStatus(id, 'Bereit');
+        const record = await SlotStorage.loadSlot(id);
+        if (record) {
+          const slotEl = gridEl.querySelector(`.angel-slot[data-id="${id}"]`);
+          if (record.blob) {
+            slots[id].hasData = true;
+            setStatus(id, 'Bereit');
+          }
+          if (record.name) {
+            slots[id].name = record.name;
+            slotEl.querySelector('[data-role="name"]').textContent = record.name;
+          }
+          if (record.emoji) {
+            slots[id].emoji = record.emoji;
+            slotEl.querySelector('[data-role="emoji"]').textContent = record.emoji;
+          }
         }
       } catch (err) {
         // IndexedDB evtl. nicht verfügbar (privater Modus etc.) - Slot bleibt leer nutzbar

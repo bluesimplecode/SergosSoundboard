@@ -62,22 +62,12 @@
 .shell-gauge-wrap {
   position: relative;
   width: min(320px, 88vw);
-  display: flex;
-  justify-content: center;
 }
 
-.shell-frame {
-  position: absolute;
-  top: -14px;
+.shell-gauge {
+  display: block;
   width: 100%;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
-}
-
-.gauge {
-  position: relative;
-  width: 78%;
-  z-index: 1;
-  top: 8px;
 }
 
 .gauge-track,
@@ -88,14 +78,14 @@
 
 .gauge-track {
   stroke: rgba(20, 20, 40, 0.25);
-  stroke-width: 14;
+  stroke-width: 12;
 }
 
 .gauge-fill {
   stroke: #ffd76a;
-  stroke-width: 10;
-  stroke-dasharray: 377;
-  stroke-dashoffset: 377;
+  stroke-width: 8;
+  stroke-dasharray: 245.0;
+  stroke-dashoffset: 245.0;
   transition: stroke-dashoffset 0.25s ease, stroke 0.25s ease;
 }
 
@@ -108,7 +98,7 @@
   stroke: #3a1f4d;
   stroke-width: 4;
   stroke-linecap: round;
-  transform-origin: 150px 160px;
+  transform-origin: 160px 205px;
   transition: transform 0.25s ease;
 }
 
@@ -117,9 +107,11 @@
 }
 
 .speed-readout {
-  position: relative;
+  position: absolute;
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
-  margin-top: -18px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
