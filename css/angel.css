@@ -142,8 +142,31 @@
   padding: 4px 8px;
 }
 
+.emoji-picker-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 215, 140, 0.5);
+}
+
+.emoji-picker-nav-btn {
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 215, 140, 0.5);
+  border-radius: 10px;
+}
+
+.emoji-picker-nav-btn:active {
+  background: #ffe9b8;
+}
+
 .emoji-picker-categories {
-  max-height: 55vh;
+  max-height: 50vh;
   overflow-y: auto;
   margin-bottom: 12px;
   padding-right: 2px;
