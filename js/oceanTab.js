@@ -25,7 +25,6 @@ window.OceanTab = (function () {
   let rainSource, rainFilterHP, rainFilterLP, rainGain, rainFlutterOsc, rainFlutterGain;
   let whaleTimer = null;
   let whipTimer = null;
-  let breakingTimer = null;
   let thunderTimer = null;
   let currentFeet = 0;
   let lastDrive = -1;
@@ -205,71 +204,6 @@ window.OceanTab = (function () {
     }
   }
 
-  // "Brechende Welle": voller, breitbandiger Crash, der von einem hellen
-  // Aufprall in ein dumpfes Grollen absackt (Crash -> Schaum/Rückzug).
-  // Selten bei niedrigem Tempo (ab 10ft/6s), häufig bei hohem Tempo (50ft/6s).
-  function playBreakingWave(intensity) {
-    const c = ctx;
-    const now = c.currentTime;
-    const dur = 1.1 + intensity * 1.3 + Math.random() * 0.4;
-
-    const src = c.createBufferSource();
-    src.buffer = NoiseSynth.createNoiseBuffer(c, dur + 0.2, 'white');
-
-    const lp = c.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.Q.value = 0.3;
-    const startFreq = 2200 + intensity * 2200;
-    const endFreq = 220 + intensity * 200;
-    lp.frequency.setValueAtTime(startFreq, now);
-    lp.frequency.exponentialRampToValueAtTime(endFreq, now + dur * 0.85);
-
-    const hp = c.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 90;
-
-    const wobble = c.createOscillator();
-    wobble.type = 'sine';
-    wobble.frequency.value = 5 + Math.random() * 6;
-    const wobbleGain = c.createGain();
-    wobbleGain.gain.value = 0.15;
-
-    const g = c.createGain();
-    const peak = 0.2 + intensity * 0.6;
-    const attack = 0.05 + Math.random() * 0.05;
-    g.gain.setValueAtTime(0.0001, now);
-    g.gain.linearRampToValueAtTime(peak, now + attack);
-    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
-
-    wobble.connect(wobbleGain);
-    wobbleGain.connect(g.gain);
-
-    src.connect(hp);
-    hp.connect(lp);
-    lp.connect(g);
-    g.connect(masterGain);
-
-    src.start(now);
-    src.stop(now + dur + 0.2);
-    wobble.start(now);
-    wobble.stop(now + dur + 0.2);
-  }
-
-  function scheduleBreakingWaves() {
-    if (!running) return;
-    if (currentFeet >= 10) {
-      const t = currentFeet / MAX_FEET;
-      const gapBase = 6500 - t * 5300; // 10ft: ~selten (~6.5s), 50ft: ~häufig (~1.2s)
-      const gap = gapBase + Math.random() * gapBase * 0.6;
-      breakingTimer = setTimeout(() => {
-        playBreakingWave(t);
-        scheduleBreakingWaves();
-      }, gap);
-    } else {
-      breakingTimer = setTimeout(scheduleBreakingWaves, 2000);
-    }
-  }
-
   // Gewitter: tiefes Rollen, bei starkem Sturm (50ft/6s) zusätzlich mit
   // hellem Blitz-Krachen und zweitem, verzögertem Rollen.
   function playThunder(strong) {
@@ -372,7 +306,6 @@ window.OceanTab = (function () {
     masterGain.gain.setTargetAtTime(1, ctx.currentTime, 0.5);
     scheduleWhale();
     scheduleWhipCracks();
-    scheduleBreakingWaves();
     scheduleThunder();
     setIntensity(currentFeet);
   }
@@ -382,7 +315,6 @@ window.OceanTab = (function () {
     running = false;
     clearTimeout(whaleTimer);
     clearTimeout(whipTimer);
-    clearTimeout(breakingTimer);
     clearTimeout(thunderTimer);
     if (ctx && masterGain) masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
   }
