@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sergo-soundbot-v1';
+const CACHE_NAME = 'sergo-soundbot-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -6,12 +6,19 @@ const ASSETS = [
   './css/main.css',
   './css/ocean.css',
   './css/angel.css',
+  './css/booming.css',
+  './css/elements.css',
+  './css/spellschools.css',
   './js/app.js',
   './js/storage.js',
   './js/noiseSynth.js',
   './js/oceanTab.js',
   './js/angelAudio.js',
+  './js/boomingAudio.js',
   './js/angelTab.js',
+  './js/boomingTab.js',
+  './js/elementsTab.js',
+  './js/spellSchoolsTab.js',
   './icons/icon-192.svg',
   './icons/icon-512.svg',
 ];

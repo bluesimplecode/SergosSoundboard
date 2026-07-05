@@ -293,6 +293,7 @@ window.AngelAudio = (function () {
 
   async function process(rawBuffer, opts) {
     const semitones = (opts && opts.semitones) || 7;
+    const renderFn = (opts && opts.renderFn) || renderAngelVoice;
     const ctx = getSharedContext();
 
     const denoised = denoiseBuffer(rawBuffer, ctx);
@@ -302,7 +303,7 @@ window.AngelAudio = (function () {
       pitched.copyToChannel(shifted, ch);
     }
 
-    const rendered = await renderAngelVoice(pitched);
+    const rendered = await renderFn(pitched);
     const blob = bufferToWav(rendered);
     return { audioBuffer: rendered, blob };
   }
@@ -317,5 +318,15 @@ window.AngelAudio = (function () {
     return src;
   }
 
-  return { createRecorder, process, blobToAudioBuffer, playBuffer, getSharedContext };
+  return {
+    createRecorder,
+    process,
+    blobToAudioBuffer,
+    playBuffer,
+    getSharedContext,
+    // untere Bausteine, wiederverwendbar für andere Stimmeffekte (z.B. Booming Voice)
+    denoiseBuffer,
+    pitchShiftChannel,
+    bufferToWav,
+  };
 })();

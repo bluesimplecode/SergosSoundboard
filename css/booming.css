@@ -1,0 +1,179 @@
+.booming-theme {
+  background: radial-gradient(ellipse at 50% 0%, #2a0e0e 0%, #160709 45%, #0a0509 100%);
+  color: #ffe4d6;
+  position: relative;
+}
+
+.booming-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+}
+
+.booming-rings {
+  position: absolute;
+  top: -60px;
+  width: 420px;
+  height: 420px;
+}
+
+.booming-rings circle {
+  fill: none;
+  stroke: rgba(255, 90, 46, 0.35);
+  stroke-width: 2;
+  transform-origin: center;
+  animation: boomPulse 2.6s ease-out infinite;
+}
+
+.booming-rings circle:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+.booming-rings circle:nth-child(3) {
+  animation-delay: 1.4s;
+}
+
+@keyframes boomPulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+.booming-content {
+  position: relative;
+  z-index: 1;
+  padding: 28px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.booming-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ff8a5c;
+  text-shadow: 0 0 14px rgba(255, 90, 46, 0.7);
+}
+
+.booming-subtitle {
+  margin: 0 0 20px;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.75;
+  max-width: 280px;
+}
+
+.booming-grid {
+  width: 100%;
+  max-width: 440px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.booming-slot {
+  position: relative;
+  background: rgba(40, 16, 16, 0.55);
+  border: 1px solid rgba(255, 120, 70, 0.35);
+  border-radius: 16px;
+  padding: 10px 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
+}
+
+.booming-slot.recording {
+  animation: boomRecordGlow 0.8s ease-in-out infinite;
+}
+
+@keyframes boomRecordGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 60, 30, 0.0); }
+  50% { box-shadow: 0 0 22px rgba(255, 60, 30, 0.75); }
+}
+
+.booming-slot.playing {
+  animation: boomPlayShake 0.35s ease-in-out infinite;
+}
+
+@keyframes boomPlayShake {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.booming-slot-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffb499;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(255, 180, 153, 0.4);
+  padding: 0 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.booming-slot-name-input {
+  display: none;
+  width: 90%;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #2a0e0e;
+  text-align: center;
+  background: #fff0e8;
+  border: 1px solid #ff8a5c;
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+
+.booming-slot-status {
+  font-size: 9px;
+  opacity: 0.65;
+  min-height: 11px;
+  text-align: center;
+}
+
+.booming-slot-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.booming-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 6px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.booming-btn.record {
+  background: #ff5a2e;
+  color: #fff;
+}
+
+.booming-btn.record.active {
+  background: #ff2d2d;
+  box-shadow: 0 0 10px rgba(255, 45, 45, 0.7);
+}
+
+.booming-btn.play {
+  background: #3a1c1c;
+  color: #ffcbb0;
+  border: 1px solid rgba(255, 138, 92, 0.4);
+}
+
+.booming-btn:disabled {
+  opacity: 0.35;
+}

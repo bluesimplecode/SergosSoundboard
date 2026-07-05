@@ -40,6 +40,7 @@ main {
 .tab-bar {
   order: 2;
   display: flex;
+  overflow-x: auto;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   background: #10141c;
   padding-bottom: env(safe-area-inset-bottom, 0);
@@ -47,17 +48,21 @@ main {
 }
 
 .tab-btn {
-  flex: 1;
+  flex: 1 0 auto;
+  min-width: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 10px 4px 8px;
+  padding: 8px 3px 7px;
   background: none;
   border: none;
   color: #8892a6;
-  font-size: 12px;
+  font-size: 9.5px;
+  line-height: 1.15;
   font-family: inherit;
+  white-space: normal;
+  text-align: center;
 }
 
 .tab-btn.active {
@@ -65,7 +70,7 @@ main {
 }
 
 .tab-icon {
-  font-size: 22px;
+  font-size: 19px;
   line-height: 1;
 }
 

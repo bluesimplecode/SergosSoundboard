@@ -9,16 +9,18 @@
       tabButtons.forEach((b) => b.classList.toggle('active', b === btn));
       panels.forEach((p) => p.classList.toggle('active', p.id === `tab-${target}`));
 
-      if (target === 'angel' && window.OceanTab) {
-        window.OceanTab.stopSound();
-      } else if (target === 'ocean' && window.OceanTab) {
-        window.OceanTab.resume();
+      if (window.OceanTab) {
+        if (target === 'ocean') window.OceanTab.resume();
+        else window.OceanTab.stopSound();
       }
     });
   });
 
   if (window.OceanTab) window.OceanTab.init();
   if (window.AngelTab) window.AngelTab.init();
+  if (window.BoomingTab) window.BoomingTab.init();
+  if (window.ElementsTab) window.ElementsTab.init();
+  if (window.SpellSchoolsTab) window.SpellSchoolsTab.init();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

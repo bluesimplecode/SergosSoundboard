@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="css/main.css" />
 <link rel="stylesheet" href="css/ocean.css" />
 <link rel="stylesheet" href="css/angel.css" />
+<link rel="stylesheet" href="css/booming.css" />
+<link rel="stylesheet" href="css/elements.css" />
+<link rel="stylesheet" href="css/spellschools.css" />
 </head>
 <body>
 
@@ -23,6 +26,18 @@
     <button class="tab-btn" data-tab="angel">
       <span class="tab-icon">👼</span>
       <span class="tab-label">Talking Doll</span>
+    </button>
+    <button class="tab-btn" data-tab="booming">
+      <span class="tab-icon">📢</span>
+      <span class="tab-label">Booming Voice</span>
+    </button>
+    <button class="tab-btn" data-tab="elements">
+      <span class="tab-icon">🔥</span>
+      <span class="tab-label">Elements</span>
+    </button>
+    <button class="tab-btn" data-tab="schools">
+      <span class="tab-icon">📖</span>
+      <span class="tab-label">Spell Schools</span>
     </button>
   </nav>
 
@@ -120,6 +135,45 @@
       </div>
     </section>
 
+    <section id="tab-booming" class="tab-panel booming-theme">
+      <div class="booming-bg" aria-hidden="true">
+        <svg class="booming-rings" viewBox="0 0 420 420">
+          <circle cx="210" cy="210" r="90" />
+          <circle cx="210" cy="210" r="90" />
+          <circle cx="210" cy="210" r="90" />
+        </svg>
+      </div>
+
+      <div class="booming-content">
+        <h1 class="booming-title">Booming Voice</h1>
+        <p class="booming-subtitle">Nimm deine Stimme auf &mdash; sie wird tief und dröhnend</p>
+
+        <div id="boomingGrid" class="booming-grid"></div>
+      </div>
+    </section>
+
+    <section id="tab-elements" class="tab-panel elements-theme">
+      <div class="elements-bg" aria-hidden="true"></div>
+
+      <div class="elements-content">
+        <h1 class="elements-title">Elements</h1>
+        <p class="elements-subtitle">Ein Sound für jede DnD-5e-Schadensart</p>
+
+        <div id="elementsGrid" class="elements-grid"></div>
+      </div>
+    </section>
+
+    <section id="tab-schools" class="tab-panel schools-theme">
+      <div class="schools-bg" aria-hidden="true"></div>
+
+      <div class="schools-content">
+        <h1 class="schools-title">Spell Schools</h1>
+        <p class="schools-subtitle">Ein Sound für jede Zauberschule</p>
+
+        <div id="schoolsGrid" class="schools-grid"></div>
+      </div>
+    </section>
+
   </main>
 
 </div>
@@ -128,7 +182,11 @@
 <script src="js/noiseSynth.js"></script>
 <script src="js/oceanTab.js"></script>
 <script src="js/angelAudio.js"></script>
+<script src="js/boomingAudio.js"></script>
 <script src="js/angelTab.js"></script>
+<script src="js/boomingTab.js"></script>
+<script src="js/elementsTab.js"></script>
+<script src="js/spellSchoolsTab.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
