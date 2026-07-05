@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Meeres-Tacho &amp; Engelsstimmen</title>
+<meta name="theme-color" content="#0a3d5c" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/ocean.css" />
+<link rel="stylesheet" href="css/angel.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="ocean">
+      <span class="tab-icon">🌊</span>
+      <span class="tab-label">Meeres-Tacho</span>
+    </button>
+    <button class="tab-btn" data-tab="angel">
+      <span class="tab-icon">✨</span>
+      <span class="tab-label">Engelsstimmen</span>
+    </button>
+  </nav>
+
+  <main>
+
+    <section id="tab-ocean" class="tab-panel ocean-theme active">
+      <div class="ocean-bg" aria-hidden="true">
+        <svg class="wave-layer wave-back" viewBox="0 0 1200 200" preserveAspectRatio="none">
+          <path d="M0,100 C150,180 350,20 600,100 C850,180 1050,20 1200,100 L1200,200 L0,200 Z"></path>
+        </svg>
+        <svg class="wave-layer wave-front" viewBox="0 0 1200 200" preserveAspectRatio="none">
+          <path d="M0,120 C200,40 400,160 600,100 C800,40 1000,160 1200,100 L1200,200 L0,200 Z"></path>
+        </svg>
+      </div>
+
+      <div class="ocean-content">
+        <h1 class="ocean-title">Meeres-Tacho</h1>
+
+        <div class="shell-gauge-wrap">
+          <svg class="shell-frame" viewBox="0 0 320 220" aria-hidden="true">
+            <defs>
+              <radialGradient id="shellGrad" cx="50%" cy="30%" r="80%">
+                <stop offset="0%" stop-color="#fdf6ff" />
+                <stop offset="45%" stop-color="#f3d9e8" />
+                <stop offset="75%" stop-color="#d9b8dd" />
+                <stop offset="100%" stop-color="#a888c2" />
+              </radialGradient>
+              <linearGradient id="shellRidge" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#c9a3d6" stop-opacity="0.4" />
+              </linearGradient>
+            </defs>
+            <!-- untere Muschelschale -->
+            <path d="M20,190 Q10,90 160,40 Q310,90 300,190 Q160,230 20,190 Z" fill="url(#shellGrad)" stroke="#8a5fa0" stroke-width="2"/>
+            <!-- Rillen der Muschel -->
+            <g stroke="url(#shellRidge)" stroke-width="3" fill="none">
+              <path d="M160,42 L160,195" />
+              <path d="M130,46 Q100,110 65,182" />
+              <path d="M100,58 Q75,115 45,175" />
+              <path d="M190,46 Q220,110 255,182" />
+              <path d="M220,58 Q245,115 275,175" />
+            </g>
+            <!-- obere Schale, leicht geöffnet -->
+            <path d="M25,95 Q160,10 295,95 Q160,55 25,95 Z" fill="url(#shellGrad)" stroke="#8a5fa0" stroke-width="2" opacity="0.95"/>
+          </svg>
+
+          <svg class="gauge" viewBox="0 0 300 180">
+            <path class="gauge-track" d="M30,160 A120,120 0 0 1 270,160" />
+            <path class="gauge-fill" id="gaugeFill" d="M30,160 A120,120 0 0 1 270,160" />
+            <g id="gaugeTicks"></g>
+            <line id="needle" class="needle" x1="150" y1="160" x2="150" y2="55" />
+            <circle cx="150" cy="160" r="9" class="needle-hub" />
+          </svg>
+
+          <div class="speed-readout">
+            <span id="speedValue">0.0</span>
+            <span class="speed-unit">km/h</span>
+          </div>
+        </div>
+
+        <div class="analogy-box">
+          <span id="analogyText">Windstille</span>
+        </div>
+
+        <div class="slider-wrap">
+          <label for="speedSlider" class="slider-label">
+            Geschwindigkeit: <span id="feetValue">0</span> feet / 6s
+          </label>
+          <input type="range" id="speedSlider" min="0" max="50" step="5" value="0" />
+          <div class="slider-scale">
+            <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-angel" class="tab-panel angel-theme">
+      <div class="angel-bg" aria-hidden="true">
+        <div class="halo-glow"></div>
+      </div>
+
+      <div class="angel-content">
+        <h1 class="angel-title">Engelsstimmen</h1>
+        <p class="angel-subtitle">Nimm deine Stimme auf &mdash; sie wird in eine Engelsstimme verwandelt</p>
+
+        <div id="angelGrid" class="angel-grid"></div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/noiseSynth.js"></script>
+<script src="js/oceanTab.js"></script>
+<script src="js/angelAudio.js"></script>
+<script src="js/angelTab.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
