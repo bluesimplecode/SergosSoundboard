@@ -5,13 +5,62 @@ window.AngelTab = (function () {
 
   const DEFAULT_EMOJI = '';
 
+  const EMOJI_CATEGORIES = [
+    {
+      label: 'Kampf & Aktionen',
+      emojis: ['⚔️', '🛡️', '🏹', '🗡️', '🔪', '💥', '👊', '🤺', '🩸', '💀', '☠️', '🧨', '🔨', '🪓', '🎯', '🥊'],
+    },
+    {
+      label: 'Reaktionen & Emotionen',
+      emojis: ['😱', '😨', '😰', '😡', '🤬', '😭', '😂', '🤣', '😲', '😳', '🥴', '🙄', '😏', '😈', '👀', '😴', '🤯', '😤', '😅', '🤢'],
+    },
+    {
+      label: 'Fantasy & Monster (DnD)',
+      emojis: ['🐉', '🐲', '🧙‍♂️', '🧙‍♀️', '🧛', '🧟', '🧝‍♂️', '🧝‍♀️', '🧞‍♂️', '🧞‍♀️', '👹', '👺', '👻', '🦇', '🕷️', '🐺', '🦅', '🦂', '🐍', '🦑', '🦖', '🦕'],
+    },
+    {
+      label: 'Magie & Zauber',
+      emojis: ['🔮', '✨', '💫', '⚡', '🔥', '❄️', '🌪️', '☄️', '🪄', '📜', '🕯️', '⚗️', '🧪', '💎', '🌟', '🌠', '🧿'],
+    },
+    {
+      label: 'Würfel & Glück',
+      emojis: ['🎲', '🍀', '🃏', '♠️', '♣️', '♥️', '♦️', '🪙', '🎰', '🎴', '🀄'],
+    },
+    {
+      label: 'Ereignisse & Momente',
+      emojis: ['🎉', '🎊', '🏆', '🥇', '👑', '🔔', '📯', '📢', '⏰', '🚪', '🗝️', '💰', '📦', '🎁', '⚰️', '🕳️', '🚨'],
+    },
+    {
+      label: 'Engel & Fantasie',
+      emojis: ['👼', '😇', '🧚', '🧜', '🕊️', '🎭'],
+    },
+    {
+      label: 'Puppen & Spielzeug',
+      emojis: ['🪆', '🧸', '🪅', '🎪', '🎠', '🎡', '🧩', '🪀', '🪁'],
+    },
+    {
+      label: 'Tiere',
+      emojis: ['🐰', '🐻', '🐱', '🐶', '🦊', '🐼', '🐨', '🐯', '🦁', '🐸', '🐵', '🦄', '🐢', '🦋', '🐝', '🦉', '🐦', '🐤', '🐬', '🐙'],
+    },
+    {
+      label: 'Natur',
+      emojis: ['🌸', '🌺', '🌻', '🌷', '🌹', '🌈', '🌙', '☀️', '💧', '🌊', '🌌', '🍃', '🌾'],
+    },
+    {
+      label: 'Herzen & Symbole',
+      emojis: ['❤️', '💖', '💝', '💕', '💗', '💓', '💞', '💘', '🧡', '💛', '💚', '💙', '💜', '🤍', '🖤', '💯', '🎵', '🎶', '🎀'],
+    },
+  ];
+
+  let pickerOverlay = null;
+  let activeEmojiSlotId = null;
+
   function createSlotEl(id) {
     const el = document.createElement('div');
     el.className = 'angel-slot';
     el.dataset.id = String(id);
     el.innerHTML = `
       <div class="angel-icon-emoji" data-role="emoji" tabindex="0" title="Tippen zum Ändern">${DEFAULT_EMOJI}</div>
-      <input type="text" class="angel-icon-input" data-role="emoji-input" maxlength="4" />
       <div class="angel-slot-name" data-role="name" tabindex="0" title="Tippen zum Umbenennen">leer</div>
       <input type="text" class="angel-slot-name-input" data-role="name-input" maxlength="24" />
       <div class="angel-slot-status" data-role="status">Leer</div>
@@ -23,35 +72,80 @@ window.AngelTab = (function () {
     return el;
   }
 
-  function setupEmojiEditing(id, slotEl) {
-    const emojiDisplay = slotEl.querySelector('[data-role="emoji"]');
-    const emojiInput = slotEl.querySelector('[data-role="emoji-input"]');
+  function buildEmojiPicker() {
+    const overlay = document.createElement('div');
+    overlay.className = 'emoji-picker-overlay';
+    overlay.innerHTML = `
+      <div class="emoji-picker-panel">
+        <div class="emoji-picker-header">
+          <span>Emoji wählen</span>
+          <button type="button" class="emoji-picker-close" data-role="picker-close">&times;</button>
+        </div>
+        <div class="emoji-picker-categories">
+          ${EMOJI_CATEGORIES.map((cat) => `
+            <div class="emoji-picker-category">
+              <div class="emoji-picker-category-label">${cat.label}</div>
+              <div class="emoji-picker-grid">
+                ${cat.emojis.map((e) => `<button type="button" class="emoji-picker-option" data-emoji="${e}">${e}</button>`).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="emoji-picker-custom">
+          <input type="text" maxlength="4" placeholder="eigenes Emoji" data-role="picker-custom-input" />
+          <button type="button" class="angel-btn play" data-role="picker-custom-confirm">Setzen</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
 
-    function enterEdit() {
-      emojiInput.value = slots[id].emoji;
-      emojiDisplay.style.display = 'none';
-      emojiInput.style.display = 'block';
-      emojiInput.focus();
-      emojiInput.select();
-    }
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeEmojiPicker();
+    });
+    overlay.querySelector('[data-role="picker-close"]').addEventListener('click', closeEmojiPicker);
+    overlay.querySelectorAll('.emoji-picker-option').forEach((btn) => {
+      btn.addEventListener('click', () => applyEmoji(btn.dataset.emoji));
+    });
 
-    function commitEdit() {
-      const finalEmoji = emojiInput.value.trim() || DEFAULT_EMOJI;
-      slots[id].emoji = finalEmoji;
-      emojiDisplay.textContent = finalEmoji;
-      emojiDisplay.style.display = '';
-      emojiInput.style.display = 'none';
-      SlotStorage.saveSlotEmoji(id, finalEmoji).catch(() => {});
-    }
-
-    emojiDisplay.addEventListener('click', enterEdit);
-    emojiInput.addEventListener('blur', commitEdit);
-    emojiInput.addEventListener('keydown', (e) => {
+    const customInput = overlay.querySelector('[data-role="picker-custom-input"]');
+    const confirmCustom = () => {
+      const val = customInput.value.trim();
+      if (val) applyEmoji(val);
+      customInput.value = '';
+    };
+    overlay.querySelector('[data-role="picker-custom-confirm"]').addEventListener('click', confirmCustom);
+    customInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        emojiInput.blur();
+        confirmCustom();
       }
     });
+
+    pickerOverlay = overlay;
+  }
+
+  function openEmojiPicker(id) {
+    activeEmojiSlotId = id;
+    pickerOverlay.classList.add('open');
+  }
+
+  function closeEmojiPicker() {
+    pickerOverlay.classList.remove('open');
+    activeEmojiSlotId = null;
+  }
+
+  function applyEmoji(emoji) {
+    if (activeEmojiSlotId == null) return;
+    const id = activeEmojiSlotId;
+    slots[id].emoji = emoji;
+    gridEl.querySelector(`.angel-slot[data-id="${id}"] [data-role="emoji"]`).textContent = emoji;
+    SlotStorage.saveSlotEmoji(id, emoji).catch(() => {});
+    closeEmojiPicker();
+  }
+
+  function setupEmojiEditing(id, slotEl) {
+    const emojiDisplay = slotEl.querySelector('[data-role="emoji"]');
+    emojiDisplay.addEventListener('click', () => openEmojiPicker(id));
   }
 
   function setupNameEditing(id, slotEl) {
@@ -170,6 +264,7 @@ window.AngelTab = (function () {
 
   async function init() {
     gridEl = document.getElementById('angelGrid');
+    buildEmojiPicker();
 
     SLOT_IDS.forEach((id) => {
       slots[id] = { state: 'idle', cachedBuffer: null, hasData: false, recorder: null, name: 'leer', emoji: DEFAULT_EMOJI };

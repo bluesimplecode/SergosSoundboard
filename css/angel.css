@@ -97,16 +97,111 @@
   padding: 2px 6px;
 }
 
-.angel-icon-input {
+.emoji-picker-overlay {
   display: none;
-  width: 56px;
-  font-size: 26px;
+  position: fixed;
+  inset: 0;
+  background: rgba(60, 40, 20, 0.35);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.emoji-picker-overlay.open {
+  display: flex;
+}
+
+.emoji-picker-panel {
+  width: min(360px, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #fff8ec 0%, #fdeff5 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 140, 0.6);
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(60, 40, 20, 0.3);
+}
+
+.emoji-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+  color: #a4783f;
+  margin-bottom: 12px;
+}
+
+.emoji-picker-close {
+  border: none;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  color: #a4783f;
+  padding: 4px 8px;
+}
+
+.emoji-picker-categories {
+  max-height: 55vh;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  padding-right: 2px;
+}
+
+.emoji-picker-category {
+  margin-bottom: 14px;
+}
+
+.emoji-picker-category-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #b08a52;
+  margin-bottom: 6px;
+}
+
+.emoji-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.emoji-picker-option {
+  font-size: 24px;
+  line-height: 1;
+  padding: 8px 2px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 215, 140, 0.5);
+  border-radius: 10px;
+}
+
+.emoji-picker-option:active {
+  background: #ffe9b8;
+}
+
+.emoji-picker-custom {
+  display: flex;
+  gap: 8px;
+  border-top: 1px dashed rgba(138, 106, 69, 0.3);
+  padding-top: 12px;
+}
+
+.emoji-picker-custom input {
+  flex: 1;
+  font-size: 16px;
   font-family: inherit;
   text-align: center;
   background: #fff;
   border: 1px solid #d9b06a;
   border-radius: 8px;
-  padding: 2px 4px;
+  padding: 6px 8px;
+  min-width: 0;
+}
+
+.emoji-picker-custom button {
+  flex-shrink: 0;
 }
 
 .angel-slot-name {
