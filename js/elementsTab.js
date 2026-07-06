@@ -17,9 +17,10 @@ window.ElementsTab = (function () {
   function playCold(c) {
     const now = c.currentTime;
     NoiseSynth.playNoiseOneShot(c, { duration: 1.4, color: 'white', filterType: 'bandpass', freqStart: 5000, freqEnd: 2000, Q: 1.2, peak: 0.22, attack: 0.1, startTime: now });
-    [2400, 2000, 1600, 1200].forEach((f, i) => {
-      NoiseSynth.playToneOneShot(c, { freqStart: f, freqEnd: f * 0.9, duration: 0.5, type: 'sine', peak: 0.14, attack: 0.01, startTime: now + i * 0.12 });
-    });
+    // knackendes Eis statt Glockenton
+    NoiseSynth.playNoiseOneShot(c, { duration: 0.08, color: 'white', filterType: 'highpass', freqStart: 4500, Q: 3, peak: 0.3, attack: 0.003, startTime: now + 0.15 });
+    NoiseSynth.playNoiseOneShot(c, { duration: 0.06, color: 'white', filterType: 'highpass', freqStart: 3800, Q: 3, peak: 0.22, attack: 0.003, startTime: now + 0.4 });
+    NoiseSynth.playNoiseOneShot(c, { duration: 0.05, color: 'white', filterType: 'highpass', freqStart: 5200, Q: 3, peak: 0.18, attack: 0.002, startTime: now + 0.58 });
   }
 
   function playFire(c) {
@@ -33,21 +34,25 @@ window.ElementsTab = (function () {
 
   function playForce(c) {
     const now = c.currentTime;
-    NoiseSynth.playNoiseOneShot(c, { duration: 0.3, color: 'white', filterType: 'lowpass', freqStart: 1800, freqEnd: 200, Q: 0.6, peak: 0.35, attack: 0.005, startTime: now });
-    NoiseSynth.playToneOneShot(c, { freqStart: 90, freqEnd: 260, duration: 0.35, type: 'sine', peak: 0.3, attack: 0.01, startTime: now });
+    NoiseSynth.playNoiseOneShot(c, { duration: 0.25, color: 'white', filterType: 'lowpass', freqStart: 1500, freqEnd: 150, Q: 0.6, peak: 0.35, attack: 0.004, startTime: now });
+    NoiseSynth.playToneOneShot(c, { freqStart: 120, freqEnd: 45, duration: 0.3, type: 'sine', peak: 0.4, attack: 0.003, startTime: now });
   }
 
   function playLightning(c) {
     const now = c.currentTime;
-    NoiseSynth.playNoiseOneShot(c, { duration: 0.2, color: 'white', filterType: 'highpass', freqStart: 1800, Q: 0.5, peak: 0.5, attack: 0.004, startTime: now });
-    NoiseSynth.playToneOneShot(c, { freqStart: 2400, freqEnd: 120, duration: 0.25, type: 'sawtooth', peak: 0.2, attack: 0.002, startTime: now + 0.02 });
+    NoiseSynth.playNoiseOneShot(c, { duration: 0.18, color: 'white', filterType: 'highpass', freqStart: 2500, Q: 0.4, peak: 0.5, attack: 0.002, startTime: now });
+    for (let i = 0; i < 10; i++) {
+      const t = now + Math.random() * 0.3;
+      NoiseSynth.playNoiseOneShot(c, { duration: 0.02, color: 'white', filterType: 'highpass', freqStart: 3000 + Math.random() * 3000, Q: 1, peak: 0.15, attack: 0.001, startTime: t });
+    }
+    NoiseSynth.playNoiseOneShot(c, { duration: 1.0, color: 'brown', filterType: 'lowpass', freqStart: 300, Q: 0.4, peak: 0.25, attack: 0.05, startTime: now + 0.05 });
   }
 
   function playNecrotic(c) {
     const now = c.currentTime;
-    NoiseSynth.playToneOneShot(c, { freqStart: 140, freqEnd: 60, duration: 2.0, type: 'sawtooth', peak: 0.22, attack: 0.2, startTime: now });
-    NoiseSynth.playToneOneShot(c, { freqStart: 150, freqEnd: 62, duration: 2.0, type: 'sawtooth', peak: 0.18, attack: 0.25, detune: -25, startTime: now + 0.05 });
-    NoiseSynth.playNoiseOneShot(c, { duration: 1.8, color: 'brown', filterType: 'lowpass', freqStart: 400, Q: 0.4, peak: 0.12, attack: 0.3, startTime: now });
+    NoiseSynth.playNoiseOneShot(c, { duration: 2.0, color: 'brown', filterType: 'lowpass', freqStart: 220, freqEnd: 80, Q: 0.5, peak: 0.35, attack: 0.25, startTime: now });
+    NoiseSynth.playToneOneShot(c, { freqStart: 90, freqEnd: 50, duration: 2.0, type: 'sine', peak: 0.15, attack: 0.3, startTime: now });
+    NoiseSynth.playToneOneShot(c, { freqStart: 92, freqEnd: 51, duration: 2.0, type: 'sine', peak: 0.12, attack: 0.35, detune: -15, startTime: now + 0.05 });
   }
 
   function playPoison(c) {
@@ -61,17 +66,16 @@ window.ElementsTab = (function () {
 
   function playPsychic(c) {
     const now = c.currentTime;
-    NoiseSynth.playToneOneShot(c, { freqStart: 700, freqEnd: 900, duration: 1.4, type: 'sine', peak: 0.16, attack: 0.15, startTime: now });
-    NoiseSynth.playToneOneShot(c, { freqStart: 710, freqEnd: 890, duration: 1.4, type: 'sine', peak: 0.14, attack: 0.15, detune: 12, startTime: now + 0.05 });
-    NoiseSynth.playToneOneShot(c, { freqStart: 1400, freqEnd: 1800, duration: 1.2, type: 'triangle', peak: 0.08, attack: 0.2, startTime: now + 0.1 });
+    NoiseSynth.playNoiseOneShot(c, { duration: 1.4, color: 'pink', filterType: 'bandpass', freqStart: 1200, freqEnd: 2200, Q: 2, peak: 0.18, attack: 0.2, startTime: now });
+    NoiseSynth.playToneOneShot(c, { freqStart: 300, freqEnd: 340, duration: 1.3, type: 'sine', peak: 0.1, attack: 0.25, startTime: now });
+    NoiseSynth.playToneOneShot(c, { freqStart: 302, freqEnd: 342, duration: 1.3, type: 'sine', peak: 0.09, attack: 0.25, detune: 15, startTime: now + 0.04 });
   }
 
   function playRadiant(c) {
     const now = c.currentTime;
-    [523, 659, 784, 1047].forEach((f, i) => {
-      NoiseSynth.playToneOneShot(c, { freqStart: f, duration: 0.9, type: 'sine', peak: 0.22, attack: 0.02, startTime: now + i * 0.09 });
-    });
-    NoiseSynth.playNoiseOneShot(c, { duration: 1.0, color: 'white', filterType: 'highpass', freqStart: 4000, Q: 0.5, peak: 0.1, attack: 0.05, startTime: now });
+    NoiseSynth.playNoiseOneShot(c, { duration: 1.6, color: 'white', filterType: 'bandpass', freqStart: 800, freqEnd: 4500, Q: 0.8, peak: 0.3, attack: 0.4, startTime: now });
+    NoiseSynth.playNoiseOneShot(c, { duration: 1.3, color: 'white', filterType: 'highpass', freqStart: 6000, Q: 0.5, peak: 0.12, attack: 0.3, startTime: now });
+    NoiseSynth.playToneOneShot(c, { freqStart: 220, freqEnd: 240, duration: 1.3, type: 'sine', peak: 0.1, attack: 0.3, startTime: now });
   }
 
   function playThunder(c) {
