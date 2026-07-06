@@ -394,6 +394,7 @@ window.OceanTab = (function () {
       updateUI(feet);
       currentFeet = feet;
       syncSound();
+      if (running) setIntensity(feet);
     });
   }
 
